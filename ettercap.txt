@@ -18,5 +18,5 @@ and
 
 anschliessend 
 
-ettercap -G #damit kann ein arpspoofing gemacht werden
+ettercap -G #damit kann ein arpspoofing gemacht werden kann
 
