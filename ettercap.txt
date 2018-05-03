@@ -1,22 +1,24 @@
 nano /etc/ettercap/etter.conf
 
-anpassen:
+#anpassen:
 
-ec_uid = 0
-ec_gid = 0              
+        ec_uid = 0
+        ec_gid = 0              
 
-and
+#and
 
-# if you use ipchains:
-   #redir_command_on = "ipchains -A input -i %iface -p$
-   #redir_command_off = "ipchains -D input -i %iface -$
+        # if you use ipchains:
+            #redir_command_on = "ipchains -A input -i %iface -p$
+            #redir_command_off = "ipchains -D input -i %iface -$
 
-# if you use iptables:
+        # if you use iptables:
 # diese auskommentieren
-   redir_command_on = "iptables -t nat -A PREROUTING -$
-   redir_command_off = "iptables -t nat -D PREROUTING $
+            redir_command_on = "iptables -t nat -A PREROUTING -$
+            redir_command_off = "iptables -t nat -D PREROUTING $
 
-anschliessend 
+#anschliessend 
 
-ettercap -G #damit kann ein arpspoofing gemacht werden kann
+ettercap -G 
+
+#damit kann ein arpspoofing gestartet werden kann
 
