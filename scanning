@@ -52,6 +52,24 @@ hping3 10.10.10.105 --scan 1-64535
 #prüfen ob SYN kommt auf port 80
 hping3 10.10.10.105 --scan 80 -S
 
+#===Layer (7), Banner grabbing
+# gibt das banner zurück des entsprechenden Port
+nc -vn 10.10.10.105 21
+(UNKNOWN) [10.10.10.105] 21 (ftp) open
+220 (vsFTPd 2.3.4)
+
+#anstatt nc (Netcat) könnte man auch telnet benutzen
+telnet  10.10.10.105 22
+
+nmap -n -Pn -O 10.10.10.105
+
+#nur 1000 wichtigste Port
+nmap -n -Pn -sV 10.10.10.105
+#nur 100 wichtigsten
+nmap -F
+#alle Ports mit 
+nmap -n -p- -Pn -sV 10.10.10.105
+
 
 #tcp syn scan
 # option -p- alle ports oder -p80 nur ports 80
@@ -65,5 +83,24 @@ nmap -sS -p80 10.10.10.105
 
 #Banner? Versionen der Service
 #	-> gibt es Exploits?
+
+#Scan mit Exploit kombinieren
+nmap -n -Pn -A -p- -oX scan.xml 10.10.10.105
+#welche sind in der exploitDB
+searchsploit --nmap scan.xml
+
+#glich schauen für welche metasploit exploits bestehen
+searchsploit -v --nmap scan.xml|grep -i metasploit
+
+#metasploit
+mfsconsole
+
+
+
+
+nmap
+
+-n #keine namensauflösung
+-nP #Kein Ping
 
 
