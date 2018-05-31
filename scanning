@@ -1,0 +1,69 @@
+#IP des Target finden
+
+	#Ethernet transport haben MAC
+		# zeichnet nur kommunikation auf die mitgeschnitten werden kann
+		netdiscover -i eth0 -p
+
+		netdiscover -i eth0 -c 3 -r 10.10.10.0/24
+
+		arp-scan --interface=eth0 10.10.10.0/24
+
+#Ports finden
+
+	#nmap zeigt zu den IPs auch Ports
+		#Ziegt IP, Ports und service
+		nmap -PR 10.10.10.0/24
+
+		#Ziegt IP und MAC
+		nmap -sn 10.10.10.0/24
+
+		# OS Fingerprint
+		p0f -i eth0
+
+
+
+	#Layer 3 latenz und distanz herausfinden anhand des delay und ttl
+	
+	ping
+
+	fping
+	
+	# kann man Packete und grösse bestimmen
+	hping3 10.10.10.105 --icmp -c 2
+
+	nmap -PE 10.10.10.0/24
+
+	nmap -sn 10.10.10.0/24 --min-rtt-time 4s
+
+	#über welche router geht es zu target
+	traceroute 10.10.10.105
+
+#===Layer 4===
+
+#namp mehr fläche zum erkennt werden als hping
+#syn scan warten auf syn-ack
+#gibt connect und syn scan
+
+#scannen der ports, dienst angabe nur aufgrund der Wellknown ports
+hping3 10.10.10.105 --scan 1-1023
+
+hping3 10.10.10.105 --scan 1-64535
+
+#prüfen ob SYN kommt auf port 80
+hping3 10.10.10.105 --scan 80 -S
+
+
+#tcp syn scan
+# option -p- alle ports oder -p80 nur ports 80
+nmap -sS -p- 10.10.10.105 
+nmap -sS -p80 10.10.10.105
+
+#Wie ist der Access auf die Service/Ports
+
+#zugriff wie?
+#	->loggin offen?
+
+#Banner? Versionen der Service
+#	-> gibt es Exploits?
+
+

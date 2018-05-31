@@ -1,0 +1,28 @@
+in /etc/proxychains.conf
+
+routing von immer gleich auf 
+
+neu   #strict_chain 
+
+dynamic_chain
+
+
+[ProxyList]
+# add proxy here ...
+# meanwile
+# defaults set to "tor"
+socks4  127.0.0.1 9050
+socks5  127.0.0.1 9050
+
+#speichern
+
+#service straten
+
+service tor start
+service tor status
+
+#mit proxychains 
+proxychains firefox www.dnstools.ch
+proxychains dig -t txt ifa.ch
+
+folie 412 Torbrowser installieren übung
