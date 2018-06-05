@@ -1,11 +1,21 @@
-in /etc/proxychains.conf
+=== Tor aktivieren mit Proxychain ===
 
-routing von immer gleich auf 
+In der Konfiguration von Proxychain unter /etc/proxychains.conf folgendes bearbeiten
 
-neu   #strict_chain 
+Standarteinstellung ist dass das Routing der Packete immer am gleichen Ort durch geht.
+Einstellung:
+
+strict_chain 
+    diese auskommentieren
+#strict_chain 
+
+Nun das dynamische Rounting aktivieren in dem man
 
 dynamic_chain
 
+Aktiviert, das # wegnimmt
+
+Ganz unten in dem Konfigurationsfile die Proxilist anpassen wiefolgt:
 
 [ProxyList]
 # add proxy here ...
@@ -14,15 +24,17 @@ dynamic_chain
 socks4  127.0.0.1 9050
 socks5  127.0.0.1 9050
 
-#speichern
+Nun das Konfigurationsfile speicher
 
-#service straten
+=== Tor-Service straten ===
 
 service tor start
 service tor status
 
-#mit proxychains 
+=== Proxychains/Tor benutzen === 
 proxychains firefox www.dnstools.ch
 proxychains dig -t txt ifa.ch
+
+
 
 folie 412 Torbrowser installieren übung
