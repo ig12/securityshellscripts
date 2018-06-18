@@ -1,28 +1,47 @@
-#IP des Target finden
+=== IP des Target finden ===
 
-	#Ethernet transport haben MAC
-		# zeichnet nur kommunikation auf die mitgeschnitten werden kann
+# Der Layer 2, der Transport-Layer verwendet häufig Ethernet. Die Addresierung erfolgt über MAC-Addressen
+
+	==== netdiscover ====		
+		# Das folgende Kommando zeichnet nur Kommunikation auf welches auf der Schnittstelle eth0
+		# ohne Scan mitgeschnitten werden kann.
+		
 		netdiscover -i eth0 -p
 
+		# Dieses Kommando macht ein aktivier Scan des Netz, in diesem Fall das Netz 10.10.10.0/24
+
 		netdiscover -i eth0 -c 3 -r 10.10.10.0/24
+			# -c 
+			# -r 
+
+	==== arp-scan ====
+
+		# ähnlich wie der 2. netdiscover befehl
 
 		arp-scan --interface=eth0 10.10.10.0/24
 
-#Ports finden
+=== Offenen Ports Suchen ===
 
+	==== nmap ===
 	#nmap zeigt zu den IPs auch Ports
+
 		#Ziegt IP, Ports und service
 		nmap -PR 10.10.10.0/24
+			# -PR steht für XXXXX
 
 		#Ziegt IP und MAC
 		nmap -sn 10.10.10.0/24
+			# -sn die Option steht für XXX
 
+	==== p0f / OS Fingerprint ===
 		# OS Fingerprint
 		p0f -i eth0
+			# -i spezifiziert das interface
 
 
-
-	#Layer 3 latenz und distanz herausfinden anhand des delay und ttl
+=== Latenz und Distanz ermitteln ===
+	
+	#Layer 3 latenz und distanz herausfinden anhand des delay (ms) und ttl (hops/router)
 	
 	ping
 
@@ -31,21 +50,33 @@
 	# kann man Packete und grösse bestimmen
 	hping3 10.10.10.105 --icmp -c 2
 
+
 	nmap -PE 10.10.10.0/24
+		# Die Option -PE steht für XXXXX
 
 	nmap -sn 10.10.10.0/24 --min-rtt-time 4s
+		# -sn oben schon (XXXX)
+		# --min-rtt-time
 
 	#über welche router geht es zu target
 	traceroute 10.10.10.105
 
-#===Layer 4===
+===Layer 4===
 
-#namp mehr fläche zum erkennt werden als hping
-#syn scan warten auf syn-ack
-#gibt connect und syn scan
+#Bei Scans ist zu beachten das "namp" mehr Fläche bitet dass bereits der Scan bemerkt wird
+# Um verdeckter zu operieren empfielt sich hping, wobei ein entdeckt werden immer möglich ist
 
-#scannen der ports, dienst angabe nur aufgrund der Wellknown ports
-hping3 10.10.10.105 --scan 1-1023
+	# Arten den Scans
+		# Gibt 2 Arten der Scans auf die Ports
+		# solche welche die Connection aufbauen und solche die nur schauen ob es antwort gibt.
+		# 1. Senden nur SYN und schauen ob der Server mit SYN-ACK Antworten (SYN-Scan)
+		# 2. Senden SYN und bestätigen die SYN-ACK mit einer ACK nachricht. Stellen entsprechend eine Verbindung her. (Connection-Scan)
+		# V1 gibt von einem wenig preis, dafür bekommt man mit der V2 auch eine bessere Serverantwort und mehr Banner zusehen.
+
+	==== hping ====
+
+	#scannen der ports, dienst angabe nur aufgrund der Wellknown ports
+	hping3 10.10.10.105 --scan 1-1023
 
 hping3 10.10.10.105 --scan 1-64535
 
@@ -84,13 +115,26 @@ nmap -sS -p80 10.10.10.105
 #Banner? Versionen der Service
 #	-> gibt es Exploits?
 
-#Scan mit Exploit kombinieren
-nmap -n -Pn -A -p- -oX scan.xml 10.10.10.105
-#welche sind in der exploitDB
-searchsploit --nmap scan.xml
+=== Scan mit Exploit kombinieren ===
+	
+	nmap -n -Pn -A -p- -oX scan.xml 10.10.10.105
+	# -n keine namensauflösung
+	# -Pn
+	# -A
+	# -p-
+	# -oX o steht für Oputput, das X in welchem Format X heisst xml-Format
 
-#glich schauen für welche metasploit exploits bestehen
-searchsploit -v --nmap scan.xml|grep -i metasploit
+	#Das Outputfile "scan.xml" kann mit dem Tool searchsploit gleich weiterverarbeitet werden
+	# "searchsploit" durchsucht die Exploit DBs nach den gefundenen Banner und Informationen aus dem "nmap"-Scan
+
+	searchsploit --nmap scan.xml
+		# --nmap 
+
+	# Den Output von "searchsploit" kann via "grep" auch gleich nach metasploit Schwachstellen durchsucht werden
+	
+	searchsploit -v --nmap scan.xml|grep -i metasploit
+		# -v Verbose
+		# --nmap 
 
 #metasploit
 mfsconsole
