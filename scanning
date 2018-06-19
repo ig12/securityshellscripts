@@ -6,35 +6,73 @@
 		# Das folgende Kommando zeichnet nur Kommunikation auf welches auf der Schnittstelle eth0
 		# ohne Scan mitgeschnitten werden kann.
 		
+		#man page http://manpages.ubuntu.com/manpages/artful/man8/netdiscover.8.html
+
 		netdiscover -i eth0 -p
+			# -i 	device
+            #  		The network interface to sniff and inject packets. If no  interface  is  specified,first available will be used.
+			
+			# -p	Enable passive mode. 
+			#		In passive mode, netdiscover does not send anything, but does only sniff.
 
 		# Dieses Kommando macht ein aktivier Scan des Netz, in diesem Fall das Netz 10.10.10.0/24
 
 		netdiscover -i eth0 -c 3 -r 10.10.10.0/24
-			# -c 
-			# -r 
+			# -c	count
+            #  		Number  of times to send each arp request. Useful for networks with packet loss, so it will scan given times for each host.
+		
+			# -r	range
+            # 		Scan  a  given  range  instead  of  auto scan. Valid range values area for example: 192.168.0.0/24, 192.168.0.0/16 or 192.168.0.0/8.
 
 	==== arp-scan ====
 
 		# ähnlich wie der 2. netdiscover befehl
 
+		#man page http://manpages.ubuntu.com/manpages/bionic/en/man1/arp-scan.1.html		
+
 		arp-scan --interface=eth0 10.10.10.0/24
+
+		# --interface=<s> or -I <s>
+        #	Use network interface <s>.  If this option is not specified, arp-scan  will  search
+        #	the  system  interface  list  for  the  lowest  numbered,  configured  up interface
+        #	(excluding loopback).  The interface specified must support ARP.
 
 === Offenen Ports Suchen ===
 
 	==== nmap ===
 	#nmap zeigt zu den IPs auch Ports
 
+	# man page http://manpages.ubuntu.com/manpages/bionic/en/man1/nmap.1.html
+
 		#Ziegt IP, Ports und service
 		nmap -PR 10.10.10.0/24
-			# -PR steht für XXXXX
+			# -PR (ARP Ping)
+           		#One of the most common Nmap usage scenarios is to scan an ethernet LAN. On most LANs,
+           		#especially those using private address ranges specified by RFC 1918[5], the vast
+           		#majority of IP addresses are unused at any given time. When Nmap tries to send a raw
+           		#IP packet such as an ICMP echo request, the operating system must determine the
+           		#destination hardware (ARP) address corresponding to the target IP so that it can
+           		#properly address the ethernet frame. This is often slow and problematic, since
+           		#operating systems weren't written with the expectation that they would need to do
+           		#millions of ARP requests against unavailable hosts in a short time period.
+		#
+           		#ARP scan puts Nmap and its optimized algorithms in charge of ARP requests. And if it
+           		#gets a response back, Nmap doesn't even need to worry about the IP-based ping packets
+           		#since it already knows the host is up. This makes ARP scan much faster and more
+           		#reliable than IP-based scans. So it is done by default when scanning ethernet hosts
+           		#that Nmap detects are on a local ethernet network. Even if different ping types (such
+           		#as -PE or -PS) are specified, Nmap uses ARP instead for any of the targets which are
+           		#on the same LAN. If you absolutely don't want to do an ARP scan, specify
+           		#--disable-arp-ping.
 
 		#Ziegt IP und MAC
 		nmap -sn 10.10.10.0/24
-			# -sn die Option steht für XXX
+			# -sn: Ping Scan - disable port scan
 
 	==== p0f / OS Fingerprint ===
 		# OS Fingerprint
+		#man https://linux.die.net/man/1/p0f & https://tools.kali.org/information-gathering/p0f
+
 		p0f -i eth0
 			# -i spezifiziert das interface
 
@@ -49,14 +87,21 @@
 	
 	# kann man Packete und grösse bestimmen
 	hping3 10.10.10.105 --icmp -c 2
+		# -1 --icmp ICMP mode, by default hping3 will send ICMP echo-request, 
+		#	you can set other ICMP type/code using --icmptype --icmpcode options.
+
+		# -c --count count
+		# 	Stop after sending (and receiving) count response packets. 
+		#	After last packet was send hping3 wait COUNTREACHED_TIMEOUT seconds target host replies. 
+		#	You are able to tune COUNTREACHED_TIMEOUT editing hping3.h
 
 
 	nmap -PE 10.10.10.0/24
-		# Die Option -PE steht für XXXXX
+		# -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
 
 	nmap -sn 10.10.10.0/24 --min-rtt-time 4s
-		# -sn oben schon (XXXX)
-		# --min-rtt-time
+		# -sn oben schon Ping Scan
+		# --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout <time>: Specifies probe round trip time.
 
 	#über welche router geht es zu target
 	traceroute 10.10.10.105
@@ -75,37 +120,102 @@
 
 	==== hping ====
 
+	#Man https://linux.die.net/man/8/hping3 & https://tools.kali.org/information-gathering/hping3
+
 	#scannen der ports, dienst angabe nur aufgrund der Wellknown ports
 	hping3 10.10.10.105 --scan 1-1023
+		#8 --scan
+		#	Scan mode, the option expects an argument that describes groups of ports to scan. 
+		#	port groups are comma separated: a number describes just a single port, so 1,2,3 means port 1, 2 and 3. 
+		#	ranges are specified using a start-end notation, like 1-1000, that tell hping to scan ports between 1 and 1000 (included). 
+		#	the special word all is an alias for 0-65535, while the special word known includes all the ports listed in /etc/services.
+		#	Groups can be combined, so the following command line will scan ports between 1 and 1000 AND port 8888 AND ports listed in /etc/services: hping --scan 1-1000,8888,known -S target.host.com
+		#	Groups can be negated (subtracted) using a ! character as prefix, so the following command line will scan all the ports NOT listed in /etc/services in the range 1-1024: hping --scan '1-1024,!known' -S target.host.com
+		#	Keep in mind that while hping seems much more like a port scanner in this mode, most of the hping switches are still honored, so for example to perform a SYN scan you need to specify the -S option, you can change the TCP windows size, TTL, control the IP fragmentation as usually, and so on. 
+		#	The only real difference is that the standard hping behaviors are encapsulated into a scanning algorithm.
+		#
+		#	Tech note: The scan mode uses a two-processes design, with shared memory for synchronization. 
+		#	The scanning algorithm is still not optimal, but already quite fast.
+		#	Hint: unlike most scanners, hping shows some interesting info about received packets, the IP ID, TCP win, TTL, and so on, don't forget to look at this additional information when you perform a scan! 
+		#	Sometimes they shows interesting details.
 
-hping3 10.10.10.105 --scan 1-64535
+	hping3 10.10.10.105 --scan 1-64535
+		#Siehe oben
 
-#prüfen ob SYN kommt auf port 80
-hping3 10.10.10.105 --scan 80 -S
+	#prüfen ob SYN kommt auf port 80
+	
+	hping3 10.10.10.105 --scan 80 -S
+		# -S --syn
+		#	Set SYN tcp flag.
+
 
 #===Layer (7), Banner grabbing
 # gibt das banner zurück des entsprechenden Port
-nc -vn 10.10.10.105 21
-(UNKNOWN) [10.10.10.105] 21 (ftp) open
-220 (vsFTPd 2.3.4)
+
+	#man nc https://linux.die.net/man/1/nc
+	nc -vn 10.10.10.105 21
+		# -v' Have nc give more verbose output.
+		# -n' Do not do any DNS or service lookups on any specified addresses, hostnames or ports.
+	#Ausgabe vom Ccommand oben
+		(UNKNOWN) [10.10.10.105] 21 (ftp) open
+		220 (vsFTPd 2.3.4)
 
 #anstatt nc (Netcat) könnte man auch telnet benutzen
 telnet  10.10.10.105 22
 
 nmap -n -Pn -O 10.10.10.105
+	#-n (No DNS resolution)
+    #	Tells Nmap to never do reverse DNS resolution on the active IP addresses it finds. Since DNS can be slow even with Nmap's
+    #	built-in parallel stub resolver, this option can slash scanning times.
 
-#nur 1000 wichtigste Port
-nmap -n -Pn -sV 10.10.10.105
-#nur 100 wichtigsten
-nmap -F
+	# -Pn: Treat all hosts as online -- skip host discovery
+
+
+	nmap -n -Pn -sV 10.10.10.105
+		# -Pn: Treat all hosts as online -- skip host discovery
+
+		#-n (No DNS resolution)
+
+		#-sV (Version detection)
+           Enables version detection, as discussed above. Alternatively, you can use -A, which
+           enables version detection among other things.
+
+	#nur 100 wichtigsten
+
+	nmap -F
+		# -F (Fast (limited port) scan)
+        #	Specifies that you wish to scan fewer ports than the default. Normally Nmap scans the
+        #	most common 1,000 ports for each scanned protocol. With -F, this is reduced to 100.
+
+        #	Nmap needs an nmap-services file with frequency information in order to know which
+        #	ports are the most common. If port frequency information isn't available, perhaps
+        #	because of the use of a custom nmap-services file, Nmap scans all named ports plus
+        #	ports 1-1024. In that case, -F means to scan only ports that are named in the services
+        #	file.
+
+		#nur 1000 wichtigste Port gescannt wenn nicht spezifizeirt
+
 #alle Ports mit 
-nmap -n -p- -Pn -sV 10.10.10.105
+
+	nmap -n -p- -Pn -sV 10.10.10.105
+		# -n (No DNS resolution)
+
+		# -p <port ranges>: Only scan specified ports, mit dem - alle Ports 65535
+
+		# -Pn: Treat all hosts as online -- skip host discovery
+
+		#-sV (Version detection)
+           Enables version detection, as discussed above. Alternatively, you can use -A, which
+           enables version detection among other things.
 
 
 #tcp syn scan
 # option -p- alle ports oder -p80 nur ports 80
-nmap -sS -p- 10.10.10.105 
-nmap -sS -p80 10.10.10.105
+	nmap -sS -p- 10.10.10.105 
+		#-sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
+
+	nmap -sS -p80 10.10.10.105
+		#-sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
 
 #Wie ist der Access auf die Service/Ports
 
@@ -119,13 +229,15 @@ nmap -sS -p80 10.10.10.105
 	
 	nmap -n -Pn -A -p- -oX scan.xml 10.10.10.105
 	# -n keine namensauflösung
-	# -Pn
-	# -A
-	# -p-
+	# -Pn Treat all hosts as online -- skip host discovery
+	# -A: Enable OS detection, version detection, script scanning, and traceroute
+	# -p- alle 65535 ports scannen
 	# -oX o steht für Oputput, das X in welchem Format X heisst xml-Format
 
 	#Das Outputfile "scan.xml" kann mit dem Tool searchsploit gleich weiterverarbeitet werden
 	# "searchsploit" durchsucht die Exploit DBs nach den gefundenen Banner und Informationen aus dem "nmap"-Scan
+
+	#man searchspolit https://www.exploit-db.com/searchsploit/#using
 
 	searchsploit --nmap scan.xml
 		# --nmap 
