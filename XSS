@@ -7,3 +7,26 @@
 einfügen im DVWA XSS Reflected
 
 (bei Security Low)
+
+
+
+
+
+normaler Gästebuch eintrag machen
+
+Mit der Burb Suit übertragung abfangen
+
+in Params
+das feld txtName ändern zu 
+<scrIpt>alert('hackbar');</scrIpt>
+
+(bei Security Medium)
+
+Firefox Element Untersuchen
+
+maxlength erhöhen
+
+<scrIpt>alert('hackbar');</scrIpt>
+in das Namensfeld eingeben
+
+(bei Security Medium)
