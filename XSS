@@ -1,0 +1,9 @@
+#==============================#
+#   Cross Site Scripting XSS   #
+#==============================#
+
+<script>alert('hackbar');</script>
+
+einfügen im DVWA XSS Reflected
+
+(bei Security Low)

